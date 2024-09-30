@@ -6,14 +6,21 @@
     "scripts": {
         "build": "tsc --outDir dist src/*.ts",
         "check-types": "tsc --noEmit src/*.ts",
+        "format": "prettier --write .",
+        "lint": "eslint src/.",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@eslint/js": "9.11.1",
         "@tsconfig/node20": "20.1.4",
+        "@types/eslint__js": "8.42.3",
+        "eslint": "9.11.1",
+        "eslint-config-prettier": "9.1.0",
         "prettier": "3.3.3",
-        "typescript": "5.6.2"
+        "typescript": "5.6.2",
+        "typescript-eslint": "8.7.0"
     }
 }
