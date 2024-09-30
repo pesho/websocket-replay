@@ -1,15 +1,19 @@
 {
     "name": "websocket-replay",
     "version": "0.0.0",
-    "description": "",
-    "main": "index.js",
+    "description": "Record and replay WebSocket messages",
+    "main": "dist/websocket-replay.js",
     "scripts": {
+        "build": "tsc --outDir dist src/*.ts",
+        "check-types": "tsc --noEmit src/*.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "prettier": "3.3.3"
+        "@tsconfig/node20": "20.1.4",
+        "prettier": "3.3.3",
+        "typescript": "5.6.2"
     }
 }

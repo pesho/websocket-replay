@@ -1,0 +1,11 @@
+{
+    "extends": "@tsconfig/node20",
+    "compilerOptions": {
+        "baseUrl": "./src/",
+        "paths": {
+            "@/*": ["./*"]
+        },
+        "strict": true,
+        "skipLibCheck": true
+    }
+}
