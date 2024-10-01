@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 
 const program = new Command()
     .name("websocket-replay")
@@ -19,14 +19,30 @@ program
         const wss = new WebSocketServer({ port }, () => {
             console.log(`Websocket proxy server listening on http://localhost:${port}/`);
         });
-        wss.on("connection", function connection(ws) {
-            ws.on("error", console.error);
-
-            ws.on("message", function message(data) {
-                console.log("received: %s", data);
+        wss.on("connection", function connection(wsServer, req) {
+            const wsClient = new WebSocket(url, {
+                headers: req.headers,
             });
 
-            ws.send("something");
+            wsClient.on("error", console.error);
+
+            wsClient.on("open", function open() {
+                wsClient.send("something");
+            });
+
+            wsClient.on("message", function message(data) {
+                console.log("client received: %s", data);
+            });
+
+            wsServer.on("error", console.error);
+
+            wsServer.on("message", function message(data) {
+                console.log("server received: %s", data);
+            });
+
+            wsServer.send("something");
+
+            console.log("req", req);
         });
     });
 
@@ -42,14 +58,14 @@ program
         const wss = new WebSocketServer({ port }, () => {
             console.log(`Websocket replay server listening on http://localhost:${port}/`);
         });
-        wss.on("connection", function connection(ws) {
-            ws.on("error", console.error);
+        wss.on("connection", function connection(wsServer) {
+            wsServer.on("error", console.error);
 
-            ws.on("message", function message(data) {
+            wsServer.on("message", function message(data) {
                 console.log("received: %s", data);
             });
 
-            ws.send("something");
+            wsServer.send("something");
         });
     });
 
