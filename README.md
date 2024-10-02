@@ -15,10 +15,16 @@ websocket-replay is a command-line tool that allows you to record WebSocket mess
 
 ## Installation
 
-To install websocket-replay, you need Node.js and npm installed on your system. Then run:
+To install websocket-replay globally, you need Node.js and npm installed on your system. Then run:
 
 ```
 npm install -g websocket-replay
+```
+
+Alternatively, you can install websocket-replay locally in your project:
+
+```
+npm install -D websocket-replay
 ```
 
 ## Usage
