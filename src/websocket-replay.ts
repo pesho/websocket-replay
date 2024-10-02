@@ -8,7 +8,7 @@ import WebSocket, { WebSocketServer } from "ws";
 const program = new Command()
     .name("websocket-replay")
     .description("Record and replay WebSocket messages")
-    .version("0.0.0")
+    .version("0.0.1")
     .option("-p, --port <port>", "Port to listen on", parsePort, 8080)
     .configureHelp({ showGlobalOptions: true })
     .addHelpText(

@@ -1,18 +1,33 @@
 {
     "name": "websocket-replay",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Record and replay WebSocket messages",
     "main": "dist/websocket-replay.js",
+    "bin": {
+        "websocket-replay": "dist/websocket-replay.js"
+    },
     "scripts": {
         "build": "tsc",
+        "clean": "rm -rf dist",
         "check-types": "tsc --noEmit",
         "format": "prettier --write .",
-        "lint": "eslint src/.",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "lint": "eslint src/."
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "keywords": [
+        "websocket",
+        "ws",
+        "replay"
+    ],
+    "author": "Peter Petrov <onestone@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/pesho/websocket-replay",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:pesho/websocket-replay.git"
+    },
+    "bugs": {
+        "url": "https://github.com/pesho/websocket-replay/issues"
+    },
     "dependencies": {
         "@commander-js/extra-typings": "12.1.0",
         "ws": "8.18.0"
