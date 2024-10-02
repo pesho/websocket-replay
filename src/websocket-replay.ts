@@ -10,7 +10,29 @@ const program = new Command()
     .description("Record and replay WebSocket messages")
     .version("0.0.0")
     .option("-p, --port <port>", "Port to listen on", parsePort, 8080)
-    .configureHelp({ showGlobalOptions: true });
+    .configureHelp({ showGlobalOptions: true })
+    .addHelpText(
+        "after",
+        `
+
+Examples:
+
+    Record messages from a WebSocket server and save to a file:
+    $ websocket-replay record wss://example.com/socket my-recording.tape
+
+    Replay messages from a file:
+    $ websocket-replay replay my-recording.tape
+
+    Replay messages from a file, but don't wait for outgoing messages:
+    $ websocket-replay replay my-recording.json --no-wait
+
+    Replay messages from a file, but replay at max speed:
+    $ websocket-replay replay my-recording.json --speed max
+
+    Replay messages from a file, but replay at 2x speed:
+    $ websocket-replay replay my-recording.json --speed 2
+`,
+    );
 
 program
     .command("record <url> <filename>")
