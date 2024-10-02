@@ -32,8 +32,8 @@ program
 
             const protocol = req.headers["sec-websocket-protocol"];
             const headers = { ...req.headers };
+            // delete headers["sec-websocket-extensions"];
             delete headers["sec-websocket-protocol"];
-            delete headers["sec-websocket-extensions"];
             delete headers["sec-websocket-key"];
             delete headers["sec-websocket-version"];
             delete headers["upgrade"];
@@ -88,25 +88,60 @@ program
     .command("replay <filename>")
     .description("Replay WebSocket messages from <filename>")
     .option("-s, --speed <speed>", 'Replay speed. Use "max" for no delays.', parseSpeed, 1)
+    .option("-n, --no-wait", "Don't count outgoing messages before replaying incoming ones")
     .action((filename, options) => {
         const port = program.opts().port;
         const speedFactor = options.speed === "max" ? 0 : 1 / options.speed;
+        const wait = options.wait;
         console.log("Replaying WebSocket messages from:", filename);
         console.log("Speed factor:", speedFactor);
         const wss = new WebSocketServer({ port }, () => {
             console.log(`Websocket replay server listening on http://localhost:${port}/`);
         });
-        wss.on("connection", function connection(wsServer) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        wss.on("connection", async function connection(wsServer) {
+            const startTime = Date.now();
             const connFilename = getConnFilename(filename);
+            let outgoingCount: number = 0;
+            let readCount: number = 0;
+
+            console.log("New connection accepted. Replaying from:", connFilename);
+            const file = await fs.open(connFilename, "r");
+            const sendBuffer: [number, string][] = [];
 
             wsServer.on("error", console.error);
 
-            wsServer.on("message", function message(data) {
-                console.log("received: %s", data);
+            wsServer.on("message", function message() {
+                ++outgoingCount;
+                checkSend();
             });
 
-            wsServer.send("something");
+            wsServer.on("close", function close() {
+                console.log("Connection closed. Replaying complete:", connFilename);
+                file.close();
+            });
+
+            function checkSend() {
+                while (sendBuffer.length > 0) {
+                    const [count, data] = sendBuffer[0];
+                    if (wait && outgoingCount < count) break;
+                    sendBuffer.shift();
+                    wsServer.send(data);
+                }
+            }
+
+            for await (const line of file.readLines()) {
+                const record = JSON.parse(line) as Message;
+                const time = record[0] * speedFactor;
+                if (record[1] === "incoming") {
+                    const data = record[2];
+                    await sleepUntil(startTime + time);
+                    if (wsServer.readyState === WebSocket.CLOSED) break;
+                    sendBuffer.push([readCount, data]);
+                    checkSend();
+                } else if (record[1] === "outgoing") {
+                    ++readCount;
+                }
+            }
         });
     });
 
@@ -144,7 +179,17 @@ function getConnFilename(filename: string) {
     return path.format({ ...parsed, base: undefined, name: parsed.name + "." + connectionCount });
 }
 
+function sleepFor(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function sleepUntil(time: number) {
+    const now = Date.now();
+    const ms = time > now ? time - now : 0;
+    return sleepFor(ms);
+}
+
 type IncomingMessage = [number, "incoming", string];
 type OutgoingMessage = [number, "outgoing", string];
 // type OutgoingMessage = [number, "outgoing"];
-// type Message = IncomingMessage | OutgoingMessage;
+type Message = IncomingMessage | OutgoingMessage;
